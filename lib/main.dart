@@ -41,8 +41,34 @@ class ShoppingListProvider with ChangeNotifier {
     if (listsString != null) {
       final List<dynamic> listsJson = jsonDecode(listsString);
       _lists = listsJson.map((json) => ShoppingList.fromJson(json)).toList();
-    } else {
-      _lists = [];
+    }
+
+    if (_lists.isEmpty) {
+      _lists = [
+        ShoppingList(
+            name: 'Weekly Essentials',
+            category: 'Groceries',
+            items: [
+              ShoppingItem(name: 'Milk', price: 75.50),
+              ShoppingItem(name: 'Bread', price: 60.00),
+              ShoppingItem(name: 'Eggs (1 dozen)', price: 90.00),
+            ]),
+        ShoppingList(
+            name: 'New Gadgets',
+            category: 'Electronics',
+            items: [
+              ShoppingItem(name: 'Wireless Mouse', price: 850.00),
+              ShoppingItem(name: 'USB-C Hub', price: 1200.00),
+            ]),
+        ShoppingList(
+            name: 'Snacks',
+            category: 'Groceries',
+            items: [
+              ShoppingItem(name: 'Chips', price: 55.00),
+              ShoppingItem(name: 'Chocolate Bar', price: 45.00),
+            ])
+      ];
+      _saveLists();
     }
     notifyListeners();
   }
@@ -128,11 +154,7 @@ class MyApp extends StatelessWidget {
         foregroundColor: Colors.black,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: const TextStyle(
-          fontSize: 24, 
-          fontWeight: FontWeight.bold,
-          color: Colors.black
-        ),
+        titleTextStyle: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -158,13 +180,9 @@ class MyApp extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: const TextStyle(
-            fontSize: 24, 
-            fontWeight: FontWeight.bold,
-            color: Colors.white
-        ),
+        titleTextStyle: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
       ),
-       inputDecorationTheme: InputDecorationTheme(
+      inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.grey[800],
         border: OutlineInputBorder(
@@ -217,48 +235,49 @@ class ShoppingListPage extends StatelessWidget {
           ),
         ],
       ),
-      body: shoppingListProvider.lists.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16.0),
+        itemCount: groupedLists.keys.length,
+        itemBuilder: (context, index) {
+          final category = groupedLists.keys.elementAt(index);
+          final lists = groupedLists[category]!;
+          final categoryTotal = lists.fold<double>(0, (sum, list) => sum + list.totalPrice);
+
+          return Card(
+            margin: const EdgeInsets.only(bottom: 16),
+            elevation: 2,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: ExpansionTile(
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey[400]),
-                  const SizedBox(height: 20),
-                  Text('No shopping lists yet.', style: Theme.of(context).textTheme.headlineSmall),
-                  const SizedBox(height: 8),
-                  Text('Tap the + button to create your first list!', style: Theme.of(context).textTheme.bodyLarge),
+                  Text(category, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                  Text(
+                    '₱${categoryTotal.toStringAsFixed(2)}',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                  ),
                 ],
               ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: groupedLists.keys.length,
-              itemBuilder: (context, index) {
-                final category = groupedLists.keys.elementAt(index);
-                final lists = groupedLists[category]!;
-                return Card(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: ExpansionTile(
-                    title: Text(category, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-                    children: lists.map((list) {
-                      return ListTile(
-                        title: Text(list.name, style: Theme.of(context).textTheme.titleMedium),
-                        subtitle: Text('Total: ₱${list.totalPrice.toStringAsFixed(2)}'),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-                          onPressed: () {
-                            final listIndex = shoppingListProvider.lists.indexOf(list);
-                            shoppingListProvider.deleteList(listIndex);
-                          },
-                        ),
-                      );
-                    }).toList(),
+              children: lists.map((list) {
+                return ListTile(
+                  title: Text(list.name, style: Theme.of(context).textTheme.titleMedium),
+                  subtitle: Text('Total: ₱${list.totalPrice.toStringAsFixed(2)}'),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                    onPressed: () {
+                      final listIndex = shoppingListProvider.lists.indexOf(list);
+                      shoppingListProvider.deleteList(listIndex);
+                    },
                   ),
                 );
-              },
+              }).toList(),
             ),
+          );
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(

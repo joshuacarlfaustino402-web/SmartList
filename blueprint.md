@@ -3,7 +3,7 @@
 
 ## Overview
 
-SmartList is a Flutter application that allows users to create, manage, and categorize shopping lists. The app provides an estimated total price for each list, helping users to budget their shopping trips. Data is stored locally on the device.
+SmartList is a Flutter application that allows users to create, manage, and categorize shopping lists. The app provides an estimated total price for each list and for each category, helping users to budget their shopping trips. Data is stored locally on the device.
 
 ## Project Outline
 
@@ -16,22 +16,24 @@ SmartList is a Flutter application that allows users to create, manage, and cate
 *   **Core Feature:** Create and manage categorized shopping lists.
 *   **Categorization:** Lists can be assigned to custom categories.
 *   **Pricing:**  Estimated total price for each shopping list with the Philippine Peso sign (₱).
+*   **Category Totals:** The main page displays a subtotal for each category, giving a clear overview of spending.
+*   **Sample Data:** For new users, the app comes pre-populated with sample lists (e.g., "Groceries", "Electronics") to demonstrate its features.
 *   **Data Persistence:** Shopping lists are saved locally on the device.
-*   **Contextual Hints:** Instead of pre-filled data, the app provides helpful placeholder text and suggestions within input fields to guide the user in creating lists and items.
+*   **Contextual Hints:** The app provides helpful placeholder text and suggestions within input fields to guide the user.
 *   **Validation:** Input fields for critical information like list name and category are validated to prevent saving empty lists.
 *   **Logo:** The app has a proper launch screen and app icon. The main page app bar displays a clean, centered title.
 
-## Current Request: UI Refinement and GitHub Export
+## Current Request: Add Sample Data and Category Totals
 
 ### Plan
 
-1.  **Refine Main Page UI:**
-    *   In `lib/main.dart`, remove the logo from the `AppBar` on the `ShoppingListPage`.
-    *   Center the `AppBar` title to create a cleaner, more focused look.
+1.  **Implement Sample Data:**
+    *   In `ShoppingListProvider`, modify the `_loadLists` method to check if the loaded list is empty. If so, populate it with sample shopping lists (e.g., for "Groceries" and "Electronics").
 
-2.  **Export Project to GitHub:**
-    *   Initialize a new Git repository.
-    *   Add all project files to the repository.
-    *   Create an initial commit with a descriptive message.
-    *   Add the specified remote GitHub repository URL.
-    *   Push the project to the `main` branch on GitHub.
+2.  **Display Category Totals:**
+    *   In the `ShoppingListPage`, calculate the total price for all lists within each category.
+    *   Update the `ExpansionTile` for each category to display this calculated total next to the category name, providing a clear subtotal.
+
+3.  **Update GitHub and Rebuild APK:**
+    *   Commit and push the changes to the GitHub repository.
+    *   Run the `flutter build apk` command to generate the final application package.
